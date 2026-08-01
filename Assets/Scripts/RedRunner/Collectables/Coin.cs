@@ -86,7 +86,13 @@ namespace RedRunner.Collectables
 
 		public override void ReturnToPool()
 		{
-			m_objectPool.ReturnToPool(m_destructTag, this, m_destructTime);
-		}
+            if (m_objectPool != null && m_destructTag != PoolTag.None)
+            {
+                m_objectPool.ReturnToPool(m_destructTag, this, m_destructTime);
+                return;
+            }
+
+            Destroy(gameObject, m_ParticleSystem.main.duration);
+        }
 	}
 }
