@@ -153,11 +153,21 @@ Dash 功能添加在 `RedCharacter.cs` 中，核心逻辑包括：
 
 - 已增加冲刺时的角色横向拉伸和纵向压缩反馈
 - 冲刺结束后会恢复角色原始缩放
+- 已新增 UIDashCooldownText.cs，用于在游戏界面显示 Dash 是否可用或剩余冷却时间
+
+### 冷却 UI 说明
+
+UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏中的 In-Game Screen 显示提示：
+
+- Dash 可用时显示 Dash Ready
+- Dash 冷却中显示剩余秒数，例如 Dash 0.7s
+- UI 不直接修改角色移动逻辑，只读取角色暴露出来的状态
+
+这样做的好处是角色控制和界面显示分离：RedCharacter 负责玩法，UIDashCooldownText 负责展示。
 
 ### 后续优化
 
 - 后续可继续增加粒子特效
-- 增加冷却 UI 提示
 - 增加冲刺音效
 - 调整冲刺手感和关卡适配
 - 支持手柄或移动端按钮输入
@@ -205,7 +215,7 @@ Dash 功能添加在 `RedCharacter.cs` 中，核心逻辑包括：
 ## 后续计划
 
 - 已为 Dash 增加角色拉伸视觉反馈
-- 为 Dash 增加冷却 UI
+- 已为 Dash 增加冷却 UI
 - 增加本地最高分保存
 - 优化暂停和结算流程
 - 整理 README，加入运行截图、操作说明和作品集说明

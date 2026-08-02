@@ -133,6 +133,42 @@ namespace RedRunner.Characters
 			}
 		}
 
+		public float DashCooldown
+		{
+			get
+			{
+				return m_DashCooldown;
+			}
+		}
+
+		public float DashCooldownRemaining
+		{
+			get
+			{
+				return Mathf.Max ( 0f, ( m_LastDashTime + m_DashCooldown ) - Time.time );
+			}
+		}
+
+		public float DashCooldownNormalized
+		{
+			get
+			{
+				if ( m_DashCooldown <= 0f )
+				{
+					return 0f;
+				}
+
+				return DashCooldownRemaining / m_DashCooldown;
+			}
+		}
+
+		public bool CanDash
+		{
+			get
+			{
+				return !IsDead.Value && !m_IsDashing && DashCooldownRemaining <= 0f;
+			}
+		}
 		public override Vector2 Speed
 		{
 			get
