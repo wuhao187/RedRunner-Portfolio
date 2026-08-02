@@ -33,6 +33,10 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected float m_DashCooldown = 1f;
 		[SerializeField]
+		protected float m_DashStretchX = 1.25f;
+		[SerializeField]
+		protected float m_DashStretchY = 0.85f;
+		[SerializeField]
 		protected string[] m_Actions = new string[0];
 		[SerializeField]
 		protected int m_CurrentActionIndex = 0;
@@ -279,6 +283,7 @@ namespace RedRunner.Characters
 			m_ClosingEye = false;
 			m_Guard = false;
 			m_Block = false;
+			m_IsDashing = false;
 			m_CurrentFootstepSoundIndex = 0;
 			GameManager.OnReset += GameManager_OnReset;
 		}
@@ -425,11 +430,19 @@ namespace RedRunner.Characters
 			m_IsDashing = true;
 			m_LastDashTime = Time.time;
 
+			Vector3 originalScale = transform.localScale;
+			Vector3 dashScale = originalScale;
+			dashScale.x = Mathf.Sign ( direction ) * Mathf.Abs ( originalScale.x ) * m_DashStretchX;
+			dashScale.y = originalScale.y * m_DashStretchY;
+			transform.localScale = dashScale;
+
 			Vector2 velocity = m_Rigidbody2D.linearVelocity;
 			velocity.x = m_DashSpeed * direction;
 			m_Rigidbody2D.linearVelocity = velocity;
 
 			yield return new WaitForSeconds ( m_DashDuration );
+
+			transform.localScale = originalScale;
 			m_IsDashing = false;
 		}
 		#endregion
@@ -546,6 +559,7 @@ namespace RedRunner.Characters
 			m_ClosingEye = false;
 			m_Guard = false;
 			m_Block = false;
+			m_IsDashing = false;
 			m_CurrentFootstepSoundIndex = 0;
 			transform.localScale = m_InitialScale;
 			m_Rigidbody2D.linearVelocity = Vector2.zero;
