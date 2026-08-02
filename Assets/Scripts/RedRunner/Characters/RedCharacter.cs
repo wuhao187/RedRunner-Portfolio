@@ -27,6 +27,12 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected float m_JumpStrength = 10f;
 		[SerializeField]
+		protected float m_DashSpeed = 14f;
+		[SerializeField]
+		protected float m_DashDuration = 0.15f;
+		[SerializeField]
+		protected float m_DashCooldown = 1f;
+		[SerializeField]
 		protected string[] m_Actions = new string[0];
 		[SerializeField]
 		protected int m_CurrentActionIndex = 0;
@@ -76,6 +82,8 @@ namespace RedRunner.Characters
 		protected int m_CurrentFootstepSoundIndex = 0;
 		protected Vector3 m_InitialScale;
 		protected Vector3 m_InitialPosition;
+		protected bool m_IsDashing = false;
+		protected float m_LastDashTime = -999f;
 
 		#endregion
 
@@ -303,6 +311,10 @@ namespace RedRunner.Characters
 			{
 				Jump ();
 			}
+			if ( Input.GetKeyDown ( KeyCode.LeftShift ) )
+			{
+				Dash ();
+			}
 			if ( IsDead.Value && !m_ClosingEye )
 			{
 				StartCoroutine ( CloseEye () );
@@ -407,6 +419,19 @@ namespace RedRunner.Characters
 			}
 		}
 
+
+		IEnumerator DashRoutine ( float direction )
+		{
+			m_IsDashing = true;
+			m_LastDashTime = Time.time;
+
+			Vector2 velocity = m_Rigidbody2D.linearVelocity;
+			velocity.x = m_DashSpeed * direction;
+			m_Rigidbody2D.linearVelocity = velocity;
+
+			yield return new WaitForSeconds ( m_DashDuration );
+			m_IsDashing = false;
+		}
 		#endregion
 
 		#region Public Methods
@@ -423,6 +448,11 @@ namespace RedRunner.Characters
 		{
 			if ( !IsDead.Value )
 			{
+				if ( m_IsDashing )
+				{
+					return;
+				}
+
 				float speed = m_CurrentRunSpeed;
 //				if ( CrossPlatformInputManager.GetButton ( "Walk" ) )
 //				{
@@ -444,6 +474,22 @@ namespace RedRunner.Characters
 					transform.localScale = scale;
 				}
 			}
+		}
+
+		public virtual void Dash ()
+		{
+			if ( IsDead.Value || m_IsDashing )
+			{
+				return;
+			}
+
+			if ( Time.time < m_LastDashTime + m_DashCooldown )
+			{
+				return;
+			}
+
+			float direction = transform.localScale.x >= 0f ? 1f : -1f;
+			StartCoroutine ( DashRoutine ( direction ) );
 		}
 
 		public override void Jump ()
