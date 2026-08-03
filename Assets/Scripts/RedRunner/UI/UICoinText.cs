@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -95,7 +95,7 @@ namespace RedRunner.UI
 				parent = canvas.transform;
 			}
 
-			GameObject coinTextObject = new GameObject(RuntimeCoinTextName, typeof(RectTransform));
+			GameObject coinTextObject = new GameObject(RuntimeCoinTextName, typeof(RectTransform), typeof(CanvasRenderer), typeof(CanvasGroup), typeof(UIScreenVisibilityFollower));
 			coinTextObject.transform.SetParent(parent, false);
 
 			RectTransform rectTransform = coinTextObject.GetComponent<RectTransform>();

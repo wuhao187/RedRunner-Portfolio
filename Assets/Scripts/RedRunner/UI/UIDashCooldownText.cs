@@ -29,6 +29,8 @@ namespace RedRunner.UI
 
 		void Awake ()
 		{
+			EnsureFollowsParentScreen ();
+
 			if ( m_Text == null )
 			{
 				m_Text = GetComponent<Text> ();
@@ -78,6 +80,18 @@ namespace RedRunner.UI
 
 		#region Private Methods
 
+		void EnsureFollowsParentScreen ()
+		{
+			if ( GetComponent<CanvasGroup> () == null )
+			{
+				gameObject.AddComponent<CanvasGroup> ();
+			}
+
+			if ( GetComponent<UIScreenVisibilityFollower> () == null )
+			{
+				gameObject.AddComponent<UIScreenVisibilityFollower> ();
+			}
+		}
 		void SetReadyState ()
 		{
 			m_Text.text = m_ReadyText;
@@ -93,3 +107,4 @@ namespace RedRunner.UI
 		#endregion
 	}
 }
+

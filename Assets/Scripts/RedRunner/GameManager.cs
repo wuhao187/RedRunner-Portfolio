@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -211,6 +211,30 @@ namespace RedRunner
             }
         }
 
+        public float CurrentScore
+        {
+            get
+            {
+                return m_Score;
+            }
+        }
+
+        public float HighScore
+        {
+            get
+            {
+                return m_HighScore;
+            }
+        }
+
+        public float LastScore
+        {
+            get
+            {
+                return m_LastScore;
+            }
+        }
+
         public void AddCoin(int amount)
         {
             if (amount <= 0)
@@ -345,3 +369,4 @@ namespace RedRunner
     }
 
 }
+
