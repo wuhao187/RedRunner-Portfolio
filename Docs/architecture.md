@@ -161,6 +161,7 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 
 - Dash 可用时显示 Dash Ready
 - Dash 冷却中显示剩余秒数，例如 Dash 0.7s
+- Dash UI 会根据状态切换颜色：可用时显示绿色，冷却中显示黄色
 - UI 不直接修改角色移动逻辑，只读取角色暴露出来的状态
 
 这样做的好处是角色控制和界面显示分离：RedCharacter 负责玩法，UIDashCooldownText 负责展示。
@@ -215,7 +216,7 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 ## 后续计划
 
 - 已为 Dash 增加角色拉伸视觉反馈
-- 已为 Dash 增加冷却 UI
+- 已为 Dash 增加冷却 UI 和颜色状态反馈
 - 增加本地最高分保存
 - 优化暂停和结算流程
 - 整理 README，加入运行截图、操作说明和作品集说明

@@ -18,6 +18,10 @@ namespace RedRunner.UI
 		protected string m_ReadyText = "Dash Ready";
 		[SerializeField]
 		protected string m_CooldownFormat = "Dash {0:0.0}s";
+		[SerializeField]
+		protected Color m_ReadyColor = new Color ( 0.3f, 1f, 0.45f, 1f );
+		[SerializeField]
+		protected Color m_CooldownColor = new Color ( 1f, 0.85f, 0.25f, 1f );
 
 		#endregion
 
@@ -55,19 +59,35 @@ namespace RedRunner.UI
 
 			if ( m_Character == null )
 			{
-				m_Text.text = m_ReadyText;
+				SetReadyState ();
 				return;
 			}
 
 			float remaining = m_Character.DashCooldownRemaining;
 			if ( remaining <= 0f )
 			{
-				m_Text.text = m_ReadyText;
+				SetReadyState ();
 			}
 			else
 			{
-				m_Text.text = string.Format ( m_CooldownFormat, remaining );
+				SetCooldownState ( remaining );
 			}
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		void SetReadyState ()
+		{
+			m_Text.text = m_ReadyText;
+			m_Text.color = m_ReadyColor;
+		}
+
+		void SetCooldownState ( float remaining )
+		{
+			m_Text.text = string.Format ( m_CooldownFormat, remaining );
+			m_Text.color = m_CooldownColor;
 		}
 
 		#endregion
