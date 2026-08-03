@@ -56,6 +56,8 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected ParticleSystem m_JumpParticleSystem;
 		[SerializeField]
+		protected ParticleSystem m_DashParticleSystem;
+		[SerializeField]
 		protected ParticleSystem m_WaterParticleSystem;
 		[SerializeField]
 		protected ParticleSystem m_BloodParticleSystem;
@@ -397,6 +399,11 @@ namespace RedRunner.Characters
 
 		void LateUpdate ()
 		{
+			if ( m_Animator == null || m_Rigidbody2D == null || m_GroundCheck == null || IsDead == null )
+			{
+				return;
+			}
+
 			m_Animator.SetFloat ( "Speed", m_Speed.x );
 			m_Animator.SetFloat ( "VelocityX", Mathf.Abs ( m_Rigidbody2D.linearVelocity.x ) );
 			m_Animator.SetFloat ( "VelocityY", m_Rigidbody2D.linearVelocity.y );
@@ -472,6 +479,8 @@ namespace RedRunner.Characters
 			dashScale.y = originalScale.y * m_DashStretchY;
 			transform.localScale = dashScale;
 
+			PlayDashParticleSystem ();
+
 			Vector2 velocity = m_Rigidbody2D.linearVelocity;
 			velocity.x = m_DashSpeed * direction;
 			m_Rigidbody2D.linearVelocity = velocity;
@@ -481,6 +490,23 @@ namespace RedRunner.Characters
 			transform.localScale = originalScale;
 			m_IsDashing = false;
 		}
+
+		void PlayDashParticleSystem ()
+		{
+			if ( m_DashParticleSystem == null )
+			{
+				return;
+			}
+
+			Vector3 particlePosition = transform.position;
+			particlePosition.x -= Mathf.Sign ( transform.localScale.x ) * 0.5f;
+			particlePosition.y += 0.1f;
+			m_DashParticleSystem.transform.position = particlePosition;
+
+			m_DashParticleSystem.Stop ( true, ParticleSystemStopBehavior.StopEmittingAndClear );
+			m_DashParticleSystem.Emit ( 30 );
+		}
+
 		#endregion
 
 		#region Public Methods
@@ -639,3 +665,4 @@ namespace RedRunner.Characters
 	}
 
 }
+

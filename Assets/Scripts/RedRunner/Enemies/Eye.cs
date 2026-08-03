@@ -90,6 +90,11 @@ namespace RedRunner.Enemies
 
 		protected virtual void SetupPupil ()
 		{
+			if ( m_Pupil == null || transform.parent == null )
+			{
+				return;
+			}
+
 			if ( m_LatestCharacter != null )
 			{
 				float speed = m_Speed;
