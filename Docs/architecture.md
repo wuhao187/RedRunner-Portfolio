@@ -243,6 +243,35 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 我为原项目补充了本地数据持久化，并在开始页、游戏页、结束页建立 UI 展示链路。
 数据由 GameManager 统一管理，UI 通过事件订阅刷新，避免每帧硬查找。
 ```
+
+## 已新增系统：成就与里程碑提示
+
+### 功能说明
+
+项目现在新增了运行时成就提示系统。玩家在达成特定目标时，屏幕上方会弹出 `Achievement Unlocked` 提示，让游戏反馈更完整。
+
+当前成就包括：
+
+- `First Coin`：累计金币达到 1
+- `Coin Collector x10`：累计金币达到 10
+- `Treasure Keeper x50`：累计金币达到 50
+- `Runner 10 m`：本局距离达到 10 米
+- `Runner 50 m`：本局距离达到 50 米
+- `Runner 100 m`：本局距离达到 100 米
+
+### 技术实现
+
+成就系统目前写在 `UIPlayerStatsText.cs` 中，核心类包括：
+
+- `UIAchievementSystem`：监听 `GameManager.OnScoreChanged` 和 `GameManager.m_Coin`，判断是否达成成就
+- `UIAchievementToast`：负责成就提示的排队、显示、停留和淡出
+- `UIAchievementBootstrap`：运行时自动创建成就提示 UI，不需要手动拖拽场景对象
+
+成就解锁状态使用 `PlayerPrefs` 保存，避免同一个成就每次启动游戏都重复弹出。点击暂停页的 `Reset Save` 会同时清除金币、分数、设置和成就记录。
+
+### 作品集价值
+
+这个功能展示了游戏客户端中常见的事件驱动 UI：游戏数据由 `GameManager` 管理，成就系统监听数据变化，UI 只在需要时弹出反馈。它能体现对数据流、用户反馈和本地持久化的理解。
 ## 当前项目流程理解
 
 这个项目的核心流程是：
@@ -294,6 +323,7 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 - 已增加本地最高分、金币和声音设置保存
 - 新增暂停界面的清除本地存档按钮
 - 优化开始页和结束页的最高分、金币、本局分数展示
+- 新增成就与里程碑提示系统
 - 优化暂停和结算流程
 - 整理 README，加入运行截图、操作说明和作品集说明
 - 构建 WebGL 或 Windows 可运行版本
@@ -302,4 +332,5 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 在暂停界面新增 `Reset Save` 按钮，点击后会调用 `GameManager.ClearLocalData()` 清除本地金币、最高分、上次分数和声音设置，并刷新相关 UI。
 
 这个功能让本地保存系统形成完整闭环：不仅能保存和读取数据，也能让玩家主动重置本地进度。对于作品集展示来说，它体现了数据管理、UI 交互和状态刷新之间的协作。
+
 

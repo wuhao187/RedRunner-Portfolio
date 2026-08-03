@@ -259,6 +259,12 @@ namespace RedRunner
             PlayerPrefs.DeleteKey(AudioEnabledSaveKey);
             PlayerPrefs.DeleteKey(LastScoreSaveKey);
             PlayerPrefs.DeleteKey(HighScoreSaveKey);
+            PlayerPrefs.DeleteKey("RedRunner.Achievement.coin_1");
+            PlayerPrefs.DeleteKey("RedRunner.Achievement.coin_10");
+            PlayerPrefs.DeleteKey("RedRunner.Achievement.coin_50");
+            PlayerPrefs.DeleteKey("RedRunner.Achievement.score_10");
+            PlayerPrefs.DeleteKey("RedRunner.Achievement.score_50");
+            PlayerPrefs.DeleteKey("RedRunner.Achievement.score_100");
             SaveLocalData();
             NotifyScoreChanged();
 
@@ -369,4 +375,5 @@ namespace RedRunner
     }
 
 }
+
 
