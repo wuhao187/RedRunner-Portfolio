@@ -406,6 +406,38 @@ GameManager 更新分数
 ### 作品集价值
 
 这个改动体现了“玩法系统 + 玩家反馈”的完整思路：不仅实现角色速度随距离成长，还为玩家补充了可见反馈。面试时可以说明：我把动态难度拆成了角色控制层和 UI 表现层，角色负责数值变化，UI 通过事件监听展示阶段变化。
+
+## 已新增体验优化：键盘快捷操作
+
+### 功能说明
+
+为了让试玩流程更顺畅，项目新增了键盘快捷操作：
+
+- `Esc`：暂停或继续游戏
+- `R`：重新开始当前局
+
+`Esc` 原项目已经有暂停切换逻辑，本次重点补充了 `R` 键重开流程，并将操作提示 UI 同步更新为 `A/D Move    Space Jump x2    Left Shift Dash    Esc Pause    R Restart`。
+
+### 技术实现
+
+快捷键逻辑添加在 `UIManager.cs` 中：
+
+- `Update()` 中检测 `Input.GetKeyDown(KeyCode.R)`
+- 新增 `RestartCurrentRun()` 方法，统一执行重开流程
+- 结算页 `EndScreen` 的重开按钮也改为调用 `UIManager.Singleton.RestartCurrentRun()`，避免按钮和快捷键各写一套逻辑
+
+重开流程为：
+
+```text
+玩家按 R 或点击结算页重开按钮
+→ GameManager.Reset()
+→ UIManager.OpenScreen(IN_GAME_SCREEN)
+→ GameManager.StartGame()
+```
+
+### 作品集价值
+
+这个改动体现了对玩家试玩体验和代码复用的关注。面试时可以说明：我没有只给按钮加功能，而是抽出统一的重开方法，让鼠标按钮和键盘快捷键走同一条流程，减少后续维护风险。
 ## 当前项目流程理解
 
 这个项目的核心流程是：
@@ -466,6 +498,7 @@ GameManager 更新分数
 在暂停界面新增 `Reset Save` 按钮，点击后会调用 `GameManager.ClearLocalData()` 清除本地金币、最高分、上次分数和声音设置，并刷新相关 UI。
 
 这个功能让本地保存系统形成完整闭环：不仅能保存和读取数据，也能让玩家主动重置本地进度。对于作品集展示来说，它体现了数据管理、UI 交互和状态刷新之间的协作。
+
 
 
 

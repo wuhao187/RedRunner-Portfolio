@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RedRunner.UI;
@@ -81,6 +81,11 @@ namespace RedRunner
 
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RestartCurrentRun();
+            }
+
             if (Input.GetButtonDown("Cancel"))
             {
                 //Added enumeration to store screen info, aka type, so it will be easier to understand it
@@ -155,6 +160,26 @@ namespace RedRunner
 
         }
 
+
+        public void RestartCurrentRun()
+        {
+            if (GameManager.Singleton == null)
+            {
+                return;
+            }
+
+            UIScreen inGameScreen = GetUIScreen(UIScreenInfo.IN_GAME_SCREEN);
+            UIScreen startScreen = GetUIScreen(UIScreenInfo.START_SCREEN);
+            if (inGameScreen == null || m_ActiveScreen == startScreen)
+            {
+                return;
+            }
+
+            GameManager.Singleton.Reset();
+            OpenScreen(inGameScreen);
+            GameManager.Singleton.StartGame();
+        }
+
         public void OpenWindow(UIWindow window)
         {
             window.Open();
@@ -213,3 +238,4 @@ namespace RedRunner
     }
 
 }
+

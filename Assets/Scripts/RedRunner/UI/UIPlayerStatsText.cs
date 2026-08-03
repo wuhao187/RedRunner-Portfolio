@@ -528,7 +528,7 @@ namespace RedRunner.UI
             rectTransform.anchorMax = new Vector2(0f, 0f);
             rectTransform.pivot = new Vector2(0f, 0f);
             rectTransform.anchoredPosition = new Vector2(18f, 24f);
-            rectTransform.sizeDelta = new Vector2(620f, 42f);
+            rectTransform.sizeDelta = new Vector2(860f, 42f);
 
             Text hintText = hintObject.GetComponent<Text>();
             hintText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -537,7 +537,7 @@ namespace RedRunner.UI
                 hintText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             }
 
-            hintText.text = "A/D Move    Space Jump x2    Left Shift Dash";
+            hintText.text = "A/D Move    Space Jump x2    Left Shift Dash    Esc Pause    R Restart";
             hintText.fontSize = 20;
             hintText.alignment = TextAnchor.MiddleLeft;
             hintText.color = new Color(1f, 1f, 1f, 0.95f);
@@ -775,6 +775,7 @@ namespace RedRunner.UI
         }
     }
 }
+
 
 
 

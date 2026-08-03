@@ -18,10 +18,7 @@ namespace RedRunner.UI
         {
             ResetButton.SetButtonAction(() =>
             {
-                GameManager.Singleton.Reset();
-                var ingameScreen = UIManager.Singleton.GetUIScreen(UIScreenInfo.IN_GAME_SCREEN);
-                UIManager.Singleton.OpenScreen(ingameScreen);
-                GameManager.Singleton.StartGame();
+                UIManager.Singleton.RestartCurrentRun();
             });
         }
 
