@@ -480,6 +480,7 @@ namespace RedRunner.Characters
 			transform.localScale = dashScale;
 
 			PlayDashParticleSystem ();
+			PlayDashSound ();
 
 			Vector2 velocity = m_Rigidbody2D.linearVelocity;
 			velocity.x = m_DashSpeed * direction;
@@ -505,6 +506,16 @@ namespace RedRunner.Characters
 
 			m_DashParticleSystem.Stop ( true, ParticleSystemStopBehavior.StopEmittingAndClear );
 			m_DashParticleSystem.Emit ( 30 );
+		}
+
+		void PlayDashSound ()
+		{
+			if ( AudioManager.Singleton == null )
+			{
+				return;
+			}
+
+			AudioManager.Singleton.PlayDashSound ( m_MainAudioSource );
 		}
 
 		#endregion
@@ -665,4 +676,6 @@ namespace RedRunner.Characters
 	}
 
 }
+
+
 

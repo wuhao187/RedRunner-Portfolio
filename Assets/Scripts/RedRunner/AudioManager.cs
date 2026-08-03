@@ -57,6 +57,8 @@ namespace RedRunner
 		[SerializeField]
 		protected AudioClip m_JumpSound;
 		[SerializeField]
+		protected AudioClip m_DashSound;
+		[SerializeField]
 		protected AudioClip[] m_FootstepSounds;
 		[SerializeField]
 		protected AudioClip m_MaceSlamSound;
@@ -131,6 +133,21 @@ namespace RedRunner
 			PlaySoundOn (audio, m_JumpSound);
 		}
 
+		public void PlayDashSound (AudioSource audio)
+		{
+			AudioClip clip = m_DashSound != null ? m_DashSound : m_JumpSound;
+			AudioSource source = audio != null ? audio : m_SoundAudioSource;
+			if ( source == null || clip == null )
+			{
+				return;
+			}
+
+			float originalPitch = source.pitch;
+			source.pitch = 1.35f;
+			source.PlayOneShot ( clip, 1f );
+			source.pitch = originalPitch;
+		}
+
 		public void PlayFootstepSound (AudioSource audio)
 		{
 			if (m_FootstepSounds.Length > 0) {
@@ -168,3 +185,4 @@ namespace RedRunner
 	}
 
 }
+
