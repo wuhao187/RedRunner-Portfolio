@@ -27,6 +27,10 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected float m_JumpStrength = 10f;
 		[SerializeField]
+		protected int m_MaxAirJumps = 1;
+		[SerializeField]
+		protected float m_AirJumpStrength = 9f;
+		[SerializeField]
 		protected float m_DashSpeed = 14f;
 		[SerializeField]
 		protected float m_DashDuration = 0.15f;
@@ -90,6 +94,7 @@ namespace RedRunner.Characters
 		protected Vector3 m_InitialPosition;
 		protected bool m_IsDashing = false;
 		protected float m_LastDashTime = -999f;
+		protected int m_RemainingAirJumps = 0;
 
 		#endregion
 
@@ -132,6 +137,22 @@ namespace RedRunner.Characters
 			get
 			{
 				return m_JumpStrength;
+			}
+		}
+
+		public int RemainingAirJumps
+		{
+			get
+			{
+				return m_RemainingAirJumps;
+			}
+		}
+
+		public int MaxAirJumps
+		{
+			get
+			{
+				return m_MaxAirJumps;
 			}
 		}
 
@@ -328,10 +349,13 @@ namespace RedRunner.Characters
 
 		void Update ()
 		{
-			if ( !GameManager.Singleton.gameStarted || !GameManager.Singleton.gameRunning )
+			GameManager gameManager = GameManager.Singleton;
+			if ( gameManager == null || !gameManager.gameStarted || !gameManager.gameRunning )
 			{
 				return;
 			}
+
+			RefreshAirJumpCount ();
 
 			if ( transform.position.y < 0f )
 			{
@@ -492,6 +516,25 @@ namespace RedRunner.Characters
 			m_IsDashing = false;
 		}
 
+		void RefreshAirJumpCount ()
+		{
+			if ( m_GroundCheck != null && m_GroundCheck.IsGrounded )
+			{
+				m_RemainingAirJumps = m_MaxAirJumps;
+			}
+		}
+
+		void PerformJump ( float jumpStrength )
+		{
+			Vector2 velocity = m_Rigidbody2D.linearVelocity;
+			velocity.y = jumpStrength;
+			m_Rigidbody2D.linearVelocity = velocity;
+			m_Animator.ResetTrigger ( "Jump" );
+			m_Animator.SetTrigger ( "Jump" );
+			m_JumpParticleSystem.Play ();
+			AudioManager.Singleton.PlayJumpSound ( m_JumpAndGroundedAudioSource );
+		}
+
 		void PlayDashParticleSystem ()
 		{
 			if ( m_DashParticleSystem == null )
@@ -580,19 +623,24 @@ namespace RedRunner.Characters
 
 		public override void Jump ()
 		{
-			if ( !IsDead.Value )
+			if ( IsDead.Value )
 			{
-				if ( m_GroundCheck.IsGrounded )
-				{
-					Vector2 velocity = m_Rigidbody2D.linearVelocity;
-					velocity.y = m_JumpStrength;
-					m_Rigidbody2D.linearVelocity = velocity;
-					m_Animator.ResetTrigger ( "Jump" );
-					m_Animator.SetTrigger ( "Jump" );
-					m_JumpParticleSystem.Play ();
-					AudioManager.Singleton.PlayJumpSound ( m_JumpAndGroundedAudioSource );
-				}
+				return;
 			}
+
+			if ( m_GroundCheck.IsGrounded )
+			{
+				PerformJump ( m_JumpStrength );
+				return;
+			}
+
+			if ( m_RemainingAirJumps <= 0 )
+			{
+				return;
+			}
+
+			m_RemainingAirJumps--;
+			PerformJump ( m_AirJumpStrength );
 		}
 
 		public override void Die ()
@@ -634,6 +682,7 @@ namespace RedRunner.Characters
 			m_Block = false;
 			m_IsDashing = false;
 			m_CurrentFootstepSoundIndex = 0;
+			m_RemainingAirJumps = m_MaxAirJumps;
 			transform.localScale = m_InitialScale;
 			m_Rigidbody2D.linearVelocity = Vector2.zero;
 			m_Skeleton.SetActive ( false, m_Rigidbody2D.linearVelocity );
@@ -658,6 +707,8 @@ namespace RedRunner.Characters
 
 		void GroundCheck_OnGrounded ()
 		{
+			m_RemainingAirJumps = m_MaxAirJumps;
+
 			if ( !IsDead.Value )
 			{
 				m_JumpParticleSystem.Play ();
@@ -676,6 +727,9 @@ namespace RedRunner.Characters
 	}
 
 }
+
+
+
 
 
 
