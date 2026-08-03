@@ -31,6 +31,10 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected float m_AirJumpStrength = 9f;
 		[SerializeField]
+		protected float m_CoyoteTime = 0.12f;
+		[SerializeField]
+		protected float m_JumpBufferTime = 0.12f;
+		[SerializeField]
 		protected float m_DashSpeed = 14f;
 		[SerializeField]
 		protected float m_DashDuration = 0.15f;
@@ -103,6 +107,9 @@ namespace RedRunner.Characters
 		protected bool m_IsDashing = false;
 		protected float m_LastDashTime = -999f;
 		protected int m_RemainingAirJumps = 0;
+		protected float m_LastGroundedTime = -999f;
+		protected float m_LastJumpPressedTime = -999f;
+		protected bool m_ConsumedCoyoteJump = false;
 		protected float m_BaseRunSpeed = 0f;
 		protected float m_BaseMaxRunSpeed = 0f;
 
@@ -395,8 +402,9 @@ namespace RedRunner.Characters
 			Move ( CrossPlatformInputManager.GetAxis ( "Horizontal" ) );
 			if ( CrossPlatformInputManager.GetButtonDown ( "Jump" ) )
 			{
-				Jump ();
+				QueueJump ();
 			}
+			TryConsumeBufferedJump ();
 			if ( Input.GetKeyDown ( KeyCode.LeftShift ) )
 			{
 				Dash ();
@@ -540,6 +548,8 @@ namespace RedRunner.Characters
 			if ( m_GroundCheck != null && m_GroundCheck.IsGrounded )
 			{
 				m_RemainingAirJumps = m_MaxAirJumps;
+				m_LastGroundedTime = Time.time;
+				m_ConsumedCoyoteJump = false;
 			}
 		}
 
@@ -657,13 +667,26 @@ namespace RedRunner.Characters
 
 		public override void Jump ()
 		{
-			if ( IsDead.Value )
+			QueueJump ();
+			TryConsumeBufferedJump ();
+		}
+
+		void QueueJump ()
+		{
+			m_LastJumpPressedTime = Time.time;
+		}
+
+		void TryConsumeBufferedJump ()
+		{
+			if ( IsDead.Value || Time.time - m_LastJumpPressedTime > m_JumpBufferTime )
 			{
 				return;
 			}
 
-			if ( m_GroundCheck.IsGrounded )
+			if ( CanUseGroundJump () )
 			{
+				m_ConsumedCoyoteJump = true;
+				m_LastJumpPressedTime = -999f;
 				PerformJump ( m_JumpStrength );
 				return;
 			}
@@ -674,7 +697,18 @@ namespace RedRunner.Characters
 			}
 
 			m_RemainingAirJumps--;
+			m_LastJumpPressedTime = -999f;
 			PerformJump ( m_AirJumpStrength );
+		}
+
+		bool CanUseGroundJump ()
+		{
+			if ( m_GroundCheck != null && m_GroundCheck.IsGrounded )
+			{
+				return true;
+			}
+
+			return !m_ConsumedCoyoteJump && Time.time - m_LastGroundedTime <= m_CoyoteTime;
 		}
 
 		public override void Die ()
@@ -717,6 +751,9 @@ namespace RedRunner.Characters
 			m_IsDashing = false;
 			m_CurrentFootstepSoundIndex = 0;
 			m_RemainingAirJumps = m_MaxAirJumps;
+			m_LastGroundedTime = Time.time;
+			m_LastJumpPressedTime = -999f;
+			m_ConsumedCoyoteJump = false;
 			transform.localScale = m_InitialScale;
 			m_Rigidbody2D.linearVelocity = Vector2.zero;
 			m_Skeleton.SetActive ( false, m_Rigidbody2D.linearVelocity );
@@ -748,6 +785,8 @@ namespace RedRunner.Characters
 		void GroundCheck_OnGrounded ()
 		{
 			m_RemainingAirJumps = m_MaxAirJumps;
+			m_LastGroundedTime = Time.time;
+			m_ConsumedCoyoteJump = false;
 
 			if ( !IsDead.Value )
 			{
