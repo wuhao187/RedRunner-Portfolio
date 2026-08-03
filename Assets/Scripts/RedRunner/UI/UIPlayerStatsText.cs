@@ -432,5 +432,140 @@ namespace RedRunner.UI
             toast.Initialize(text, canvasGroup);
         }
     }
+    public class UIControlHintText : MonoBehaviour
+    {
+        [SerializeField]
+        private float m_VisibleDuration = 7f;
+        [SerializeField]
+        private float m_FadeDuration = 0.6f;
+
+        private CanvasGroup m_CanvasGroup;
+        private UIScreen m_ParentScreen;
+        private float m_Timer;
+
+        private void Awake()
+        {
+            m_CanvasGroup = GetComponent<CanvasGroup>();
+            if (m_CanvasGroup == null)
+            {
+                m_CanvasGroup = gameObject.AddComponent<CanvasGroup>();
+            }
+
+            m_ParentScreen = GetComponentInParent<UIScreen>();
+
+
+            m_CanvasGroup.alpha = 1f;
+            m_CanvasGroup.interactable = false;
+            m_CanvasGroup.blocksRaycasts = false;
+        }
+
+        private void OnEnable()
+        {
+            m_Timer = 0f;
+            if (m_CanvasGroup != null)
+            {
+                m_ParentScreen = GetComponentInParent<UIScreen>();
+
+                m_CanvasGroup.alpha = 1f;
+            }
+        }
+
+        private void Update()
+        {
+            if (m_CanvasGroup == null)
+            {
+                return;
+            }
+
+            if (m_ParentScreen == null)
+            {
+                m_ParentScreen = GetComponentInParent<UIScreen>();
+            }
+
+            if (m_ParentScreen != null && !m_ParentScreen.IsOpen)
+            {
+                m_CanvasGroup.alpha = 0f;
+                return;
+            }
+
+            m_Timer += Time.unscaledDeltaTime;
+            if (m_Timer <= m_VisibleDuration)
+            {
+                m_ParentScreen = GetComponentInParent<UIScreen>();
+
+                m_CanvasGroup.alpha = 1f;
+                return;
+            }
+
+            float fadeProgress = Mathf.Clamp01((m_Timer - m_VisibleDuration) / m_FadeDuration);
+            m_CanvasGroup.alpha = 1f - fadeProgress;
+        }
+    }
+
+    public static class UIControlHintBootstrap
+    {
+        private const string RuntimeControlHintName = "Runtime Control Hint Text";
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void CreateControlHintIfMissing()
+        {
+            if (GameObject.Find(RuntimeControlHintName) != null)
+            {
+                return;
+            }
+
+            Transform parent = FindTransformByName("In-Game Screen");
+            if (parent == null)
+            {
+                return;
+            }
+
+            GameObject hintObject = new GameObject(RuntimeControlHintName, typeof(RectTransform), typeof(CanvasRenderer), typeof(CanvasGroup), typeof(Text), typeof(Outline), typeof(UIControlHintText));
+            hintObject.transform.SetParent(parent, false);
+
+            RectTransform rectTransform = hintObject.GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0f, 0f);
+            rectTransform.anchorMax = new Vector2(0f, 0f);
+            rectTransform.pivot = new Vector2(0f, 0f);
+            rectTransform.anchoredPosition = new Vector2(18f, 24f);
+            rectTransform.sizeDelta = new Vector2(620f, 42f);
+
+            Text hintText = hintObject.GetComponent<Text>();
+            hintText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (hintText.font == null)
+            {
+                hintText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            }
+
+            hintText.text = "A/D Move    Space Jump x2    Left Shift Dash";
+            hintText.fontSize = 20;
+            hintText.alignment = TextAnchor.MiddleLeft;
+            hintText.color = new Color(1f, 1f, 1f, 0.95f);
+            hintText.raycastTarget = false;
+            hintText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            hintText.verticalOverflow = VerticalWrapMode.Overflow;
+
+            Outline outline = hintObject.GetComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.68f);
+            outline.effectDistance = new Vector2(2f, -2f);
+        }
+
+        private static Transform FindTransformByName(string targetName)
+        {
+            Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>();
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                if (transforms[i].name == targetName && transforms[i].gameObject.scene.IsValid())
+                {
+                    return transforms[i];
+                }
+            }
+
+            return null;
+        }
+    }
 }
+
+
+
 
