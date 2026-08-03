@@ -222,6 +222,28 @@ namespace RedRunner
             SaveLocalData();
         }
 
+        public void ClearLocalData()
+        {
+            m_Coin.Value = 0;
+            m_LastScore = 0f;
+            m_HighScore = 0f;
+            m_Score = 0f;
+            m_AudioEnabled = true;
+            AudioListener.volume = 1f;
+
+            PlayerPrefs.DeleteKey(CoinSaveKey);
+            PlayerPrefs.DeleteKey(AudioEnabledSaveKey);
+            PlayerPrefs.DeleteKey(LastScoreSaveKey);
+            PlayerPrefs.DeleteKey(HighScoreSaveKey);
+            SaveLocalData();
+            NotifyScoreChanged();
+
+            if (OnAudioEnabled != null)
+            {
+                OnAudioEnabled(m_AudioEnabled);
+            }
+        }
+
         public void ExitGame()
         {
             Application.Quit();
