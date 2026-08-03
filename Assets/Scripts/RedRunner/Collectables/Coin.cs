@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -72,6 +72,18 @@ namespace RedRunner.Collectables
 			}
 		}
 
+
+		public override void OnSpawnFromPool ()
+		{
+			m_UseOnTriggerEnter2D = true;
+			m_SpriteRenderer.enabled = true;
+			m_Collider2D.enabled = true;
+			m_ParticleSystem.Stop ( true, ParticleSystemStopBehavior.StopEmittingAndClear );
+			m_Animator.ResetTrigger ( COLLECT_TRIGGER );
+			m_Animator.Rebind ();
+			m_Animator.Update ( 0f );
+		}
+
 		public override void Collect ()
 		{
             GameManager.Singleton.AddCoin(1);
@@ -96,3 +108,4 @@ namespace RedRunner.Collectables
         }
 	}
 }
+

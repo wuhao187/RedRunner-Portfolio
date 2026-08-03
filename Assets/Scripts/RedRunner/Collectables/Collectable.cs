@@ -27,6 +27,11 @@ namespace RedRunner.Collectables
 
 		public abstract void Collect ();
 
+		public virtual void OnSpawnFromPool ()
+		{
+
+		}
+
 		public abstract void ReturnToPool();
 
 	}

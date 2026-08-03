@@ -20,6 +20,15 @@ namespace RedRunner.Collectables
 			}
 		}
 
+
+		public override void OnSpawnFromPool ()
+		{
+			base.OnSpawnFromPool ();
+			m_SecondCollider2D.enabled = true;
+			m_Rigidbody2D.linearVelocity = Vector2.zero;
+			m_Rigidbody2D.angularVelocity = 0f;
+		}
+
 		public override void Collect ()
 		{
 			m_SecondCollider2D.enabled = false;

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using RedRunner.Collectables;
 using UnityEngine;
@@ -78,6 +78,7 @@ public class ObjectPool : MonoBehaviour
             objectToSpawn.gameObject.SetActive(true);
             objectToSpawn.transform.position = position;
             objectToSpawn.transform.rotation = rotation;
+            objectToSpawn.OnSpawnFromPool();
         }
 
         return objectToSpawn;
@@ -117,3 +118,4 @@ public enum PoolTag
     None = 0,
     Coins = 1
 }
+
