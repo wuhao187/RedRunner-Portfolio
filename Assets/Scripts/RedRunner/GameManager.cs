@@ -1,11 +1,9 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-using BayatGames.SaveGameFree;
-using BayatGames.SaveGameFree.Serializers;
 
 using RedRunner.Characters;
 using RedRunner.Collectables;
@@ -24,6 +22,11 @@ namespace RedRunner
         public static event ResetHandler OnReset;
         public static event ScoreHandler OnScoreChanged;
         public static event AudioEnabledHandler OnAudioEnabled;
+
+        private const string CoinSaveKey = "RedRunner.Coin";
+        private const string AudioEnabledSaveKey = "RedRunner.AudioEnabled";
+        private const string LastScoreSaveKey = "RedRunner.LastScore";
+        private const string HighScoreSaveKey = "RedRunner.HighScore";
 
         private static GameManager m_Singleton;
 
@@ -91,43 +94,9 @@ namespace RedRunner
                 Destroy(gameObject);
                 return;
             }
-            SaveGame.Serializer = new SaveGameBinarySerializer();
             m_Singleton = this;
             m_Score = 0f;
-
-            if (SaveGame.Exists("coin"))
-            {
-                m_Coin.Value = SaveGame.Load<int>("coin");
-            }
-            else
-            {
-                m_Coin.Value = 0;
-            }
-            if (SaveGame.Exists("audioEnabled"))
-            {
-                SetAudioEnabled(SaveGame.Load<bool>("audioEnabled"));
-            }
-            else
-            {
-                SetAudioEnabled(true);
-            }
-            if (SaveGame.Exists("lastScore"))
-            {
-                m_LastScore = SaveGame.Load<float>("lastScore");
-            }
-            else
-            {
-                m_LastScore = 0f;
-            }
-            if (SaveGame.Exists("highScore"))
-            {
-                m_HighScore = SaveGame.Load<float>("highScore");
-            }
-            else
-            {
-                m_HighScore = 0f;
-            }
-
+            LoadLocalData();
         }
 
         void UpdateDeathEvent(bool isDead)
@@ -149,6 +118,7 @@ namespace RedRunner
             {
                 m_HighScore = m_Score;
             }
+            SaveLocalData();
             if (OnScoreChanged != null)
             {
                 OnScoreChanged(m_Score, m_HighScore, m_LastScore);
@@ -172,6 +142,7 @@ namespace RedRunner
         {
             EndGame();
             UIManager.Singleton.Init();
+            NotifyScoreChanged();
             StartCoroutine(Load());
         }
 
@@ -190,6 +161,13 @@ namespace RedRunner
             }
         }
 
+        void NotifyScoreChanged()
+        {
+            if (OnScoreChanged != null)
+            {
+                OnScoreChanged(m_Score, m_HighScore, m_LastScore);
+            }
+        }
         IEnumerator Load()
         {
             var startScreen = UIManager.Singleton.UISCREENS.Find(el => el.ScreenInfo == UIScreenInfo.START_SCREEN);
@@ -199,13 +177,49 @@ namespace RedRunner
 
         void OnApplicationQuit()
         {
+            m_LastScore = m_Score;
             if (m_Score > m_HighScore)
             {
                 m_HighScore = m_Score;
             }
-            SaveGame.Save<int>("coin", m_Coin.Value);
-            SaveGame.Save<float>("lastScore", m_Score);
-            SaveGame.Save<float>("highScore", m_HighScore);
+            SaveLocalData();
+        }
+
+        void LoadLocalData()
+        {
+            m_Coin.Value = PlayerPrefs.GetInt(CoinSaveKey, 0);
+            m_AudioEnabled = PlayerPrefs.GetInt(AudioEnabledSaveKey, 1) == 1;
+            AudioListener.volume = m_AudioEnabled ? 1f : 0f;
+            m_LastScore = PlayerPrefs.GetFloat(LastScoreSaveKey, 0f);
+            m_HighScore = PlayerPrefs.GetFloat(HighScoreSaveKey, 0f);
+        }
+
+        public void SaveLocalData()
+        {
+            PlayerPrefs.SetInt(CoinSaveKey, m_Coin.Value);
+            PlayerPrefs.SetInt(AudioEnabledSaveKey, m_AudioEnabled ? 1 : 0);
+            PlayerPrefs.SetFloat(LastScoreSaveKey, m_LastScore);
+            PlayerPrefs.SetFloat(HighScoreSaveKey, m_HighScore);
+            PlayerPrefs.Save();
+        }
+
+        public int CoinCount
+        {
+            get
+            {
+                return m_Coin.Value;
+            }
+        }
+
+        public void AddCoin(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            m_Coin.Value += amount;
+            SaveLocalData();
         }
 
         public void ExitGame()
@@ -222,6 +236,7 @@ namespace RedRunner
         {
             m_AudioEnabled = active;
             AudioListener.volume = active ? 1f : 0f;
+            SaveLocalData();
             if (OnAudioEnabled != null)
             {
                 OnAudioEnabled(active);

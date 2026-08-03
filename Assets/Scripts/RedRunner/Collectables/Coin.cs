@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -74,7 +74,7 @@ namespace RedRunner.Collectables
 
 		public override void Collect ()
 		{
-            GameManager.Singleton.m_Coin.Value++;
+            GameManager.Singleton.AddCoin(1);
 			m_Animator.SetTrigger (COLLECT_TRIGGER);
 			m_ParticleSystem.Play ();
 			m_SpriteRenderer.enabled = false;
