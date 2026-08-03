@@ -4,7 +4,7 @@
 
 RedRunner 是一个 Unity 2D 平台跑酷游戏。玩家控制红色角色在平台之间移动、跳跃、收集金币，并通过 GameManager 管理游戏状态、分数和重置流程。
 
-本仓库基于开源项目 RedRunner 进行学习型二次开发，目标是将其整理为游戏客户端应届生作品集项目。当前改造重点包括：阅读项目结构、修复运行时问题、新增 Dash 冲刺、二段跳、本地保存、数据 UI、成就提示和操作引导，并持续补充开发文档。
+本仓库基于开源项目 RedRunner 进行学习型二次开发，目标是将其整理为游戏客户端应届生作品集项目。当前改造重点包括：阅读项目结构、修复运行时问题、新增 Dash 冲刺、二段跳、动态难度、本地保存、数据 UI、成就提示和操作引导，并持续补充开发文档。
 
 ## 核心模块
 
@@ -244,6 +244,45 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 
 这个改动体现了基础的玩家引导意识。面试时可以说明：新增玩法后，我补充了操作提示，降低试玩成本，并通过运行时 UI 创建避免手动污染场景。
 
+## 已新增玩法系统：动态难度速度成长
+
+### 功能说明
+
+游戏现在会根据玩家跑出的距离逐步提高角色速度。前期速度较稳定，方便玩家适应；跑得越远，角色基础跑速和最高跑速会逐步上升，让后期节奏更紧张。
+
+### 技术实现
+
+动态难度逻辑添加在 `RedCharacter.cs` 中，通过监听 `GameManager.OnScoreChanged` 获得当前距离，并根据距离计算成长进度：
+
+- `m_DifficultyScalingEnabled`：是否启用速度成长
+- `m_DifficultyFullScore`：达到完整成长的目标距离
+- `m_DifficultyRunSpeedBonus`：基础跑速最多增加多少
+- `m_DifficultyMaxRunSpeedBonus`：最高跑速最多增加多少
+- `m_BaseRunSpeed` / `m_BaseMaxRunSpeed`：记录初始速度，重置游戏时恢复
+
+### 当前参数
+
+| 参数 | 当前值 | 作用 |
+| --- | ---: | --- |
+| `m_DifficultyFullScore` | `120` | 跑到约 120 米时达到完整速度成长 |
+| `m_DifficultyRunSpeedBonus` | `1.2` | 基础跑速最多提高 1.2 |
+| `m_DifficultyMaxRunSpeedBonus` | `2` | 最高跑速最多提高 2 |
+
+### 当前实现流程
+
+```text
+GameManager 更新分数
+→ 触发 OnScoreChanged
+→ RedCharacter 接收当前分数
+→ 根据 当前分数 / DifficultyFullScore 计算成长进度
+→ 提高 RunSpeed 和 MaxRunSpeed
+→ 游戏重置时恢复到初始速度
+```
+
+### 作品集价值
+
+这个功能体现了基础数值设计和玩法节奏控制能力。面试时可以说明：我把速度成长做成可配置参数，而不是写死数值，这样后续可以继续调整难度曲线和关卡适配。
+
 ## 已新增系统：本地数据保存
 
 ### 功能说明
@@ -399,6 +438,7 @@ UIDashCooldownText.cs 负责读取 RedCharacter 的 Dash 状态，并在游戏�
 在暂停界面新增 `Reset Save` 按钮，点击后会调用 `GameManager.ClearLocalData()` 清除本地金币、最高分、上次分数和声音设置，并刷新相关 UI。
 
 这个功能让本地保存系统形成完整闭环：不仅能保存和读取数据，也能让玩家主动重置本地进度。对于作品集展示来说，它体现了数据管理、UI 交互和状态刷新之间的协作。
+
 
 
 

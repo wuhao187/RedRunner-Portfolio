@@ -41,6 +41,14 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected float m_DashStretchY = 0.85f;
 		[SerializeField]
+		protected bool m_DifficultyScalingEnabled = true;
+		[SerializeField]
+		protected float m_DifficultyFullScore = 120f;
+		[SerializeField]
+		protected float m_DifficultyRunSpeedBonus = 1.2f;
+		[SerializeField]
+		protected float m_DifficultyMaxRunSpeedBonus = 2f;
+		[SerializeField]
 		protected string[] m_Actions = new string[0];
 		[SerializeField]
 		protected int m_CurrentActionIndex = 0;
@@ -95,6 +103,8 @@ namespace RedRunner.Characters
 		protected bool m_IsDashing = false;
 		protected float m_LastDashTime = -999f;
 		protected int m_RemainingAirJumps = 0;
+		protected float m_BaseRunSpeed = 0f;
+		protected float m_BaseMaxRunSpeed = 0f;
 
 		#endregion
 
@@ -344,7 +354,16 @@ namespace RedRunner.Characters
 			m_Block = false;
 			m_IsDashing = false;
 			m_CurrentFootstepSoundIndex = 0;
+			m_BaseRunSpeed = m_RunSpeed;
+			m_BaseMaxRunSpeed = m_MaxRunSpeed;
 			GameManager.OnReset += GameManager_OnReset;
+			GameManager.OnScoreChanged += GameManager_OnScoreChanged;
+		}
+
+		void OnDestroy ()
+		{
+			GameManager.OnReset -= GameManager_OnReset;
+			GameManager.OnScoreChanged -= GameManager_OnScoreChanged;
 		}
 
 		void Update ()
@@ -535,6 +554,20 @@ namespace RedRunner.Characters
 			AudioManager.Singleton.PlayJumpSound ( m_JumpAndGroundedAudioSource );
 		}
 
+		void ApplyDifficultyScaling ( float score )
+		{
+			if ( !m_DifficultyScalingEnabled || m_DifficultyFullScore <= 0f )
+			{
+				m_RunSpeed = m_BaseRunSpeed;
+				m_MaxRunSpeed = m_BaseMaxRunSpeed;
+				return;
+			}
+
+			float progress = Mathf.Clamp01 ( score / m_DifficultyFullScore );
+			m_RunSpeed = m_BaseRunSpeed + ( m_DifficultyRunSpeedBonus * progress );
+			m_MaxRunSpeed = m_BaseMaxRunSpeed + ( m_DifficultyMaxRunSpeedBonus * progress );
+		}
+
 		void PlayDashParticleSystem ()
 		{
 			if ( m_DashParticleSystem == null )
@@ -694,8 +727,14 @@ namespace RedRunner.Characters
 
 		void GameManager_OnReset ()
 		{
+			ApplyDifficultyScaling ( 0f );
 			transform.position = m_InitialPosition;
 			Reset ();
+		}
+
+		void GameManager_OnScoreChanged ( float newScore, float highScore, float lastScore )
+		{
+			ApplyDifficultyScaling ( newScore );
 		}
 
 		void Skeleton_OnActiveChanged ( bool active )
@@ -727,6 +766,7 @@ namespace RedRunner.Characters
 	}
 
 }
+
 
 
 
