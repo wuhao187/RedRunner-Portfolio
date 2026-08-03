@@ -564,7 +564,220 @@ namespace RedRunner.UI
             return null;
         }
     }
+    public class UISpeedLevelText : MonoBehaviour
+    {
+        [SerializeField]
+        private float m_LevelTwoMeters = 30f;
+        [SerializeField]
+        private float m_LevelThreeMeters = 70f;
+        [SerializeField]
+        private float m_LevelFourMeters = 120f;
+        [SerializeField]
+        private float m_VisibleDuration = 1.6f;
+        [SerializeField]
+        private float m_FadeDuration = 0.5f;
+
+        private Text m_Text;
+        private CanvasGroup m_CanvasGroup;
+        private UIScreen m_ParentScreen;
+        private int m_CurrentLevel = 1;
+        private float m_Timer;
+        private bool m_IsShowing;
+
+        private void Awake()
+        {
+            m_Text = GetComponent<Text>();
+            m_CanvasGroup = GetComponent<CanvasGroup>();
+            if (m_CanvasGroup == null)
+            {
+                m_CanvasGroup = gameObject.AddComponent<CanvasGroup>();
+            }
+
+            m_ParentScreen = GetComponentInParent<UIScreen>();
+            HideImmediately();
+        }
+
+        private void OnEnable()
+        {
+            if (GameManager.Singleton != null)
+            {
+                GameManager.OnScoreChanged += GameManager_OnScoreChanged;
+                GameManager.OnReset += GameManager_OnReset;
+            }
+        }
+
+        private void OnDisable()
+        {
+            GameManager.OnScoreChanged -= GameManager_OnScoreChanged;
+            GameManager.OnReset -= GameManager_OnReset;
+        }
+
+        private void Update()
+        {
+            if (m_CanvasGroup == null || !m_IsShowing)
+            {
+                return;
+            }
+
+            if (m_ParentScreen == null)
+            {
+                m_ParentScreen = GetComponentInParent<UIScreen>();
+            }
+
+            if (m_ParentScreen != null && !m_ParentScreen.IsOpen)
+            {
+                HideImmediately();
+                return;
+            }
+
+            m_Timer += Time.unscaledDeltaTime;
+            if (m_Timer <= m_VisibleDuration)
+            {
+                m_CanvasGroup.alpha = 1f;
+                return;
+            }
+
+            float fadeProgress = Mathf.Clamp01((m_Timer - m_VisibleDuration) / m_FadeDuration);
+            m_CanvasGroup.alpha = 1f - fadeProgress;
+            if (fadeProgress >= 1f)
+            {
+                m_IsShowing = false;
+            }
+        }
+
+        private void GameManager_OnScoreChanged(float newScore, float highScore, float lastScore)
+        {
+            float scoreMeters = newScore * Extensions.modifier;
+            int newLevel = GetLevel(scoreMeters);
+            if (newLevel <= m_CurrentLevel)
+            {
+                return;
+            }
+
+            m_CurrentLevel = newLevel;
+            ShowSpeedUp(newLevel);
+        }
+
+        private void GameManager_OnReset()
+        {
+            m_CurrentLevel = 1;
+            HideImmediately();
+        }
+
+        private int GetLevel(float scoreMeters)
+        {
+            if (scoreMeters >= m_LevelFourMeters)
+            {
+                return 4;
+            }
+
+            if (scoreMeters >= m_LevelThreeMeters)
+            {
+                return 3;
+            }
+
+            if (scoreMeters >= m_LevelTwoMeters)
+            {
+                return 2;
+            }
+
+            return 1;
+        }
+
+        private void ShowSpeedUp(int level)
+        {
+            if (m_Text != null)
+            {
+                m_Text.text = string.Format("Speed Up Lv.{0}", level);
+            }
+
+            m_Timer = 0f;
+            m_IsShowing = true;
+            if (m_CanvasGroup != null)
+            {
+                m_CanvasGroup.alpha = 1f;
+            }
+        }
+
+        private void HideImmediately()
+        {
+            m_IsShowing = false;
+            m_Timer = 0f;
+            if (m_CanvasGroup != null)
+            {
+                m_CanvasGroup.alpha = 0f;
+                m_CanvasGroup.interactable = false;
+                m_CanvasGroup.blocksRaycasts = false;
+            }
+        }
+    }
+
+    public static class UISpeedLevelBootstrap
+    {
+        private const string RuntimeSpeedLevelName = "Runtime Speed Level Text";
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void CreateSpeedLevelTextIfMissing()
+        {
+            if (GameObject.Find(RuntimeSpeedLevelName) != null)
+            {
+                return;
+            }
+
+            Transform parent = FindTransformByName("In-Game Screen");
+            if (parent == null)
+            {
+                return;
+            }
+
+            GameObject speedObject = new GameObject(RuntimeSpeedLevelName, typeof(RectTransform), typeof(CanvasRenderer), typeof(CanvasGroup), typeof(Text), typeof(Outline), typeof(UISpeedLevelText));
+            speedObject.transform.SetParent(parent, false);
+
+            RectTransform rectTransform = speedObject.GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(1f, 1f);
+            rectTransform.anchorMax = new Vector2(1f, 1f);
+            rectTransform.pivot = new Vector2(1f, 1f);
+            rectTransform.anchoredPosition = new Vector2(-116f, -96f);
+            rectTransform.sizeDelta = new Vector2(260f, 48f);
+
+            Text text = speedObject.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (text.font == null)
+            {
+                text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            }
+
+            text.text = string.Empty;
+            text.fontSize = 28;
+            text.alignment = TextAnchor.MiddleRight;
+            text.color = new Color(1f, 0.95f, 0.22f, 1f);
+            text.raycastTarget = false;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+
+            Outline outline = speedObject.GetComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.72f);
+            outline.effectDistance = new Vector2(2f, -2f);
+        }
+
+        private static Transform FindTransformByName(string targetName)
+        {
+            Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>();
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                if (transforms[i].name == targetName && transforms[i].gameObject.scene.IsValid())
+                {
+                    return transforms[i];
+                }
+            }
+
+            return null;
+        }
+    }
 }
+
+
+
 
 
 

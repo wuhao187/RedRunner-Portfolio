@@ -43,11 +43,11 @@ namespace RedRunner.Characters
 		[SerializeField]
 		protected bool m_DifficultyScalingEnabled = true;
 		[SerializeField]
-		protected float m_DifficultyFullScore = 120f;
+		protected float m_DifficultyFullMeters = 120f;
 		[SerializeField]
-		protected float m_DifficultyRunSpeedBonus = 1.2f;
+		protected float m_DifficultyRunSpeedBoost = 2f;
 		[SerializeField]
-		protected float m_DifficultyMaxRunSpeedBonus = 2f;
+		protected float m_DifficultyMaxRunSpeedBoost = 3.5f;
 		[SerializeField]
 		protected string[] m_Actions = new string[0];
 		[SerializeField]
@@ -556,16 +556,17 @@ namespace RedRunner.Characters
 
 		void ApplyDifficultyScaling ( float score )
 		{
-			if ( !m_DifficultyScalingEnabled || m_DifficultyFullScore <= 0f )
+			if ( !m_DifficultyScalingEnabled || m_DifficultyFullMeters <= 0f )
 			{
 				m_RunSpeed = m_BaseRunSpeed;
 				m_MaxRunSpeed = m_BaseMaxRunSpeed;
 				return;
 			}
 
-			float progress = Mathf.Clamp01 ( score / m_DifficultyFullScore );
-			m_RunSpeed = m_BaseRunSpeed + ( m_DifficultyRunSpeedBonus * progress );
-			m_MaxRunSpeed = m_BaseMaxRunSpeed + ( m_DifficultyMaxRunSpeedBonus * progress );
+			float scoreMeters = score * Extensions.modifier;
+			float progress = Mathf.Clamp01 ( scoreMeters / m_DifficultyFullMeters );
+			m_RunSpeed = m_BaseRunSpeed + ( m_DifficultyRunSpeedBoost * progress );
+			m_MaxRunSpeed = m_BaseMaxRunSpeed + ( m_DifficultyMaxRunSpeedBoost * progress );
 		}
 
 		void PlayDashParticleSystem ()
@@ -766,6 +767,8 @@ namespace RedRunner.Characters
 	}
 
 }
+
+
 
 
 
