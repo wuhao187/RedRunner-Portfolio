@@ -1,91 +1,127 @@
-# Red Runner
+﻿# RedRunner Portfolio
 
-Red Runner, Awesome Platformer Game.
+这是一个基于开源项目 [BayatGames/RedRunner](https://github.com/BayatGames/RedRunner) 二次开发的 Unity 2D 平台跑酷作品集项目。
 
-It is now free and open source and always will be. :clap: :tada:
+本项目的目标不是简单复制原项目，而是在跑通原版游戏的基础上，逐步完成角色控制、玩法系统、UI 反馈、本地数据保存、对象池状态修复和项目文档整理，使其成为游戏客户端应届生求职时可以展示和讲解的 Demo。
 
-| [:sparkles: Getting Started](#getting-started) | [:rocket: Download](#download) | [:camera: Screenshots](#screenshots) |
-| --------------- | -------- | ----------- |
+## 项目定位
 
-<p align="center">
-  <img src="https://img.itch.zone/aW1hZ2UvMTU4NTg4LzcyNzg3Mi5wbmc=/original/AU5pWY.png" />
-</p>
+- 类型：Unity 2D 平台跑酷游戏
+- 引擎版本：Unity 6000.2.6f2
+- 主要语言：C#
+- 适用方向：Unity 游戏客户端开发、Gameplay 程序、客户端工程实习/校招作品集
 
-[:camera: See Screenshots](#screenshots)
+## 已完成改造
 
-[:movie_camera: **See the Trailer**](https://youtu.be/MO2yJhgtMes)
+### 玩法与手感
 
-## Getting Started
+- 新增 Dash 冲刺技能，支持左 Shift 触发
+- 为 Dash 增加冷却时间、冷却 UI、粒子特效和冲刺音效
+- 新增二段跳能力
+- 新增 Coyote Time，让角色刚离开平台后仍可短时间起跳
+- 新增 Jump Buffer，让玩家快落地前提前按跳也能自动触发
+- 新增动态难度速度成长，角色会随奔跑距离逐步加速
+- 新增 Speed Up 等级提示，让速度成长更容易被玩家感知
 
-Follow the below instructions to get started with Red Runner source code:
+### UI 与反馈
 
-1. [Make sure you have all Requirements](#requirements)
-2. [Download Source Code](#download)
-3. Open Project in Unity and Enjoy!
+- 新增游戏内金币数量显示
+- 新增 Dash Ready / Dash 冷却倒计时显示
+- 新增开始页与结束页数据展示，包括最高分、上一局距离、金币数
+- 新增成就/里程碑提示，例如首次金币、金币收集数量、奔跑距离
+- 新增操作提示 UI，降低试玩者上手成本
+- 新增 R 键快速重开流程，并复用原有 UI 重开逻辑
 
-## Requirements
+### 数据与工程
 
-Make sure you have the below requirements before starting:
+- 新增本地金币、最高分、上一局分数、声音设置保存
+- 新增暂停界面清除本地存档按钮
+- 修复金币收集时对象池为空导致的 NullReferenceException
+- 优化对象池复用状态，金币重新生成时会恢复显示、碰撞、动画、粒子和刚体状态
+- 更新项目结构说明文档，记录核心模块、改造内容和面试讲法
 
-- [Unity Game Engine](https://unity3d.com) version **6000.2.6f2 (Unity 6)**
-- Basic Knowledge about Unity and C#
+## 操作说明
 
-## Download
+| 操作 | 按键 |
+| --- | --- |
+| 左右移动 | A / D |
+| 跳跃 / 二段跳 | Space |
+| Dash 冲刺 | Left Shift |
+| 暂停 | Esc |
+| 快速重开 | R |
 
-You can get access to Red Runner source code by using one of the following ways:
+## 核心技术点
 
-- [:sparkles: Download Source Code](https://github.com/BayatGames/RedRunner/archive/master.zip)
-- [:fire: Download Source Code from Itch.io](https://bayat.itch.io/red-runner)
-- Clone the repository locally:
+### 角色控制
 
-```bash
-git clone https://github.com/BayatGames/RedRunner.git
+角色移动、跳跃、二段跳和 Dash 都集中在 `RedCharacter.cs` 中。角色不是直接修改坐标移动，而是通过 `Rigidbody2D.linearVelocity` 控制运动，更符合 Unity 2D 物理项目的常见写法。
+
+### 输入容错
+
+Coyote Time 和 Jump Buffer 用于提升平台跳跃手感：
+
+- Coyote Time 解决“刚走出平台边缘就不能跳”的问题
+- Jump Buffer 解决“快落地前提前按跳却没响应”的问题
+
+这类功能体现的是游戏客户端对玩家输入体验的处理能力。
+
+### UI 状态同步
+
+金币、最高分、Dash 冷却、成就提示等 UI 会跟随游戏状态刷新。部分 UI 使用运行时创建方式，减少手动改场景带来的维护成本。
+
+### 本地数据保存
+
+项目使用 PlayerPrefs 保存金币数量、最高分、上一局分数和声音设置，并提供清除本地数据入口，形成完整的数据读写闭环。
+
+### 对象池复用
+
+对象池复用金币时，通过 `OnSpawnFromPool()` 重置对象状态，避免金币被回收后保留隐藏、无碰撞、动画残留等旧状态。
+
+## 项目结构
+
+```text
+Assets/Scripts/RedRunner
+├── Characters          # 角色控制、跳跃、Dash、死亡逻辑
+├── Collectables        # 金币、宝箱、可收集物逻辑
+├── ObjectPool          # 对象池
+├── TerrainGeneration   # 跑酷地形生成
+├── UI                  # UI 界面、文本、提示和数据展示
+├── AudioControl        # 音效管理
+└── Utilities           # 通用工具类
 ```
 
-Also you can the build version of the Red Runner using the following ways:
+详细说明见：[`Docs/architecture.md`](Docs/architecture.md)
 
-- [:star: Download from Itch.io](https://bayat.itch.io/red-runner)
+## 如何运行
 
-## Screenshots
+1. 安装 Unity Hub
+2. 安装 Unity 6000.2.6f2
+3. 使用 Unity Hub 打开本项目根目录
+4. 打开 `Assets/Scenes/Play.unity`
+5. 点击 Play 运行游戏
 
-<p align="center">
-  <img src="https://img.itch.zone/aW1hZ2UvMTU4NTg4LzczMjc2NS5wbmc=/original/HipFLL.png" />
-</p>
+## 面试时可以重点讲
 
-<p align="center">
-  <img src="https://img.itch.zone/aW1hZ2UvMTU4NTg4LzczMjc2MC5wbmc=/original/mb636l.png" />
-</p>
+- 我基于一个已有 Unity 开源项目做二次开发，而不是从空项目堆功能
+- 我先跑通项目并阅读核心结构，再逐步加功能和修复问题
+- 我新增 Dash、二段跳、跳跃容错、动态难度等 Gameplay 功能
+- 我补充了 UI 反馈、本地保存和成就提示，让功能可被玩家感知
+- 我修复了对象池和空引用问题，体现了对运行时稳定性的关注
+- 我持续维护 `Docs/architecture.md`，说明自己能做工程记录和项目复盘
 
-<p align="center">
-  <img src="https://img.itch.zone/aW1hZ2UvMTU4NTg4LzczMjc2OS5wbmc=/original/UyNp4U.png" />
-</p>
+## 后续计划
 
-<p align="center">
-  <img src="https://img.itch.zone/aW1hZ2UvMTU4NTg4LzczMjc3My5wbmc=/original/RAoMpO.png" />
-</p>
+- 增加正式截图和 GIF 演示
+- 构建 WebGL 或 Windows 可运行版本
+- 增加简单的新手引导或关卡节奏说明
+- 继续整理简历项目描述和面试问答
 
-## Credits
+## 原项目与 License
 
-- Graphics: [Free Platform Game Assets](https://bayat.itch.io/platform-game-assets)
-- Save System: [Save Game Pro - Save Everything](https://bayat.itch.io/save-game-pro-save-everything)
-- Game Engine: [Unity](https://unity3d.com/)
-- Thanks to all of the game development community for their awesome help.
+本项目基于 Bayat Games 的 RedRunner 开源项目进行学习型二次开发。
 
-## Related
+- 原项目地址：[BayatGames/RedRunner](https://github.com/BayatGames/RedRunner)
+- 原项目 License：MIT
+- 原项目作者：Bayat Games
 
-- [Awesome Unity](https://github.com/RyanNielson/awesome-unity) - A curated list of awesome Unity assets, resources, and more.
-- [Games on GitHub](https://github.com/leereilly/games/) - 🎮 A list of popular/awesome videos games, add-ons, maps, etc. hosted on GitHub. Any genre. Any platform. Any engine.
-- [GameDev Resources](https://github.com/Kavex/GameDev-Resources) - 🎮 🎲 A wonderful list of Game Development resources.
-- [UnityLibrary](https://github.com/UnityCommunity/UnityLibrary) - 📚 Library of all kind of scripts, snippets & shaders for Unity.
-
-## Resources
-
-[:rocket: Patreon](https://www.patreon.com/BayatGames)
-
-[:newspaper: Support and News](https://github.com/BayatGames/Support)
-
-## License
-
-MIT @ [Bayat Games](https://github.com/BayatGames)
-
-Made with :heart: by [Bayat Games](https://github.com/BayatGames)
+本仓库保留原项目版权与 License 信息，二次开发内容用于个人学习与求职作品集展示。
