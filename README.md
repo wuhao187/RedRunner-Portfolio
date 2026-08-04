@@ -2,6 +2,8 @@
 
 ![Gameplay Demo](Docs/gameplay.gif)
 
+▶️ [**在线试玩**（WebGL 版，浏览器直接玩，无需安装）](https://wuhao187.github.io/RedRunner-Portfolio/)
+
 这是一个基于开源项目 [BayatGames/RedRunner](https://github.com/BayatGames/RedRunner) 二次开发的 Unity 2D 平台跑酷作品集项目。
 
 本项目的目标不是简单复制原项目，而是在跑通原版游戏的基础上，逐步完成角色控制、玩法系统、UI 反馈、本地数据保存、对象池状态修复和项目文档整理，使其成为游戏客户端应届生求职时可以展示和讲解的 Demo。
