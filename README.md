@@ -1,5 +1,7 @@
 ﻿# RedRunner Portfolio
 
+![Gameplay Demo](Docs/gameplay.gif)
+
 这是一个基于开源项目 [BayatGames/RedRunner](https://github.com/BayatGames/RedRunner) 二次开发的 Unity 2D 平台跑酷作品集项目。
 
 本项目的目标不是简单复制原项目，而是在跑通原版游戏的基础上，逐步完成角色控制、玩法系统、UI 反馈、本地数据保存、对象池状态修复和项目文档整理，使其成为游戏客户端应届生求职时可以展示和讲解的 Demo。
@@ -39,6 +41,12 @@
 - 修复金币收集时对象池为空导致的 NullReferenceException
 - 优化对象池复用状态，金币重新生成时会恢复显示、碰撞、动画、粒子和刚体状态
 - 更新项目结构说明文档，记录核心模块、改造内容和面试讲法
+
+## 演示截图
+
+| 开始页 | 游戏内 | 结算页 |
+| --- | --- | --- |
+| ![开始页](Docs/screenshot_menu.png) | ![游戏内](Docs/screenshot_game.png) | ![结算页](Docs/screenshot_end.png) |
 
 ## 操作说明
 
@@ -113,8 +121,9 @@ Assets/Scripts/RedRunner
 
 ## 后续计划
 
-- 增加正式截图和 GIF 演示
-- 构建 WebGL 或 Windows 可运行版本
+- [x] 增加正式截图和 GIF 演示
+- [x] 构建 Windows 可运行版本
+- [ ] 部署 WebGL 在线试玩版本（GitHub Pages）
 - 增加简单的新手引导或关卡节奏说明
 - 继续整理简历项目描述和面试问答
 
