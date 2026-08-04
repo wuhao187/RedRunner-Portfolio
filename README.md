@@ -92,6 +92,8 @@ Assets/Scripts/RedRunner
 
 详细说明见：[`Docs/architecture.md`](Docs/architecture.md)
 
+面试讲解稿见：[Docs/interview-notes.md](Docs/interview-notes.md)
+
 ## 如何运行
 
 1. 安装 Unity Hub
@@ -125,3 +127,4 @@ Assets/Scripts/RedRunner
 - 原项目作者：Bayat Games
 
 本仓库保留原项目版权与 License 信息，二次开发内容用于个人学习与求职作品集展示。
+

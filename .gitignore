@@ -47,3 +47,6 @@ sysinfo.txt
 *.unitypackage
 *.app
 *.ipa
+
+# Unity crash recovery
+Assets/_Recovery*
