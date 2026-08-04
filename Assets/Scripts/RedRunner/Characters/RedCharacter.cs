@@ -112,12 +112,13 @@ namespace RedRunner.Characters
 		protected bool m_ConsumedCoyoteJump = false;
 		protected float m_BaseRunSpeed = 0f;
 		protected float m_BaseMaxRunSpeed = 0f;
+        protected bool m_FacingRight = true;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		public override float MaxRunSpeed
+        public override float MaxRunSpeed
 		{
 			get
 			{
@@ -353,7 +354,8 @@ namespace RedRunner.Characters
 		{
 			m_InitialPosition = transform.position;
 			m_InitialScale = transform.localScale;
-			m_GroundCheck.OnGrounded += GroundCheck_OnGrounded;
+            m_FacingRight = m_InitialScale.x >= 0f;
+            m_GroundCheck.OnGrounded += GroundCheck_OnGrounded;
 			m_Skeleton.OnActiveChanged += Skeleton_OnActiveChanged;
             IsDead = new Property<bool>(false);
 			m_ClosingEye = false;
@@ -468,29 +470,7 @@ namespace RedRunner.Characters
 			}
 		}
 
-		//		void OnCollisionEnter2D ( Collision2D collision2D )
-		//		{
-		//			bool isGround = collision2D.collider.CompareTag ( GroundCheck.GROUND_TAG );
-		//			if ( isGround && !m_IsDead )
-		//			{
-		//				bool isBottom = false;
-		//				for ( int i = 0; i < collision2D.contacts.Length; i++ )
-		//				{
-		//					if ( !isBottom )
-		//					{
-		//						isBottom = collision2D.contacts [ i ].normal.y == 1;
-		//					}
-		//					else
-		//					{
-		//						break;
-		//					}
-		//				}
-		//				if ( isBottom )
-		//				{
-		//					m_JumpParticleSystem.Play ();
-		//				}
-		//			}
-		//		}
+		
 
 		#endregion
 
@@ -627,26 +607,18 @@ namespace RedRunner.Characters
 				}
 
 				float speed = m_CurrentRunSpeed;
-//				if ( CrossPlatformInputManager.GetButton ( "Walk" ) )
-//				{
-//					speed = m_WalkSpeed;
-				//				}
+
 				Vector2 velocity = m_Rigidbody2D.linearVelocity;
 				velocity.x = speed * horizontalAxis;
 				m_Rigidbody2D.linearVelocity = velocity;
-				if ( horizontalAxis > 0f )
-				{
-					Vector3 scale = transform.localScale;
-					scale.x = Mathf.Sign ( horizontalAxis );
-					transform.localScale = scale;
-				}
-				else if ( horizontalAxis < 0f )
-				{
-					Vector3 scale = transform.localScale;
-					scale.x = Mathf.Sign ( horizontalAxis );
-					transform.localScale = scale;
-				}
-			}
+                if (horizontalAxis != 0f)
+                {
+                    m_FacingRight = horizontalAxis > 0f;
+                    Vector3 scale = transform.localScale;
+                    scale.x = m_FacingRight ? 1f : -1f;
+                    transform.localScale = scale;
+                }
+            }
 		}
 
 		public virtual void Dash ()
@@ -661,8 +633,8 @@ namespace RedRunner.Characters
 				return;
 			}
 
-			float direction = transform.localScale.x >= 0f ? 1f : -1f;
-			StartCoroutine ( DashRoutine ( direction ) );
+            float direction = m_FacingRight ? 1f : -1f;
+            StartCoroutine ( DashRoutine ( direction ) );
 		}
 
 		public override void Jump ()
@@ -755,7 +727,8 @@ namespace RedRunner.Characters
 			m_LastJumpPressedTime = -999f;
 			m_ConsumedCoyoteJump = false;
 			transform.localScale = m_InitialScale;
-			m_Rigidbody2D.linearVelocity = Vector2.zero;
+            m_FacingRight = m_InitialScale.x >= 0f;
+            m_Rigidbody2D.linearVelocity = Vector2.zero;
 			m_Skeleton.SetActive ( false, m_Rigidbody2D.linearVelocity );
 		}
 
