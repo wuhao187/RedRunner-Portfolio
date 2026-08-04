@@ -102,7 +102,7 @@ Assets/Scripts/RedRunner
 
 详细说明见：[`Docs/architecture.md`](Docs/architecture.md)
 
-面试讲解稿见：[Docs/interview-notes.md](Docs/interview-notes.md)
+
 
 ## 如何运行
 
@@ -128,9 +128,9 @@ Assets/Scripts/RedRunner
 
 - [x] 增加正式截图和 GIF 演示
 - [x] 构建 Windows 可运行版本
-- [ ] 部署 WebGL 在线试玩版本（GitHub Pages）
+- [x] 部署 WebGL 在线试玩版本（GitHub Pages）
 - 增加简单的新手引导或关卡节奏说明
-- 继续整理简历项目描述和面试问答
+
 
 ## 原项目与 License
 
