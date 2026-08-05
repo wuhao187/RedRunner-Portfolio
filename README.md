@@ -102,7 +102,7 @@ Assets/Scripts/RedRunner
 
 详细说明见：[`Docs/architecture.md`](Docs/architecture.md)
 
-面试讲解稿见：[Docs/interview-notes.md](Docs/interview-notes.md)
+
 
 ## 如何运行
 
@@ -112,22 +112,25 @@ Assets/Scripts/RedRunner
 4. 打开 `Assets/Scenes/Play.unity`
 5. 点击 Play 运行游戏
 
-## 面试时可以重点讲
+## 项目亮点与迭代记录
 
-- 我基于一个已有 Unity 开源项目做二次开发，而不是从空项目堆功能
-- 我先跑通项目并阅读核心结构，再逐步加功能和修复问题
-- 我新增 Dash、二段跳、跳跃容错、动态难度等 Gameplay 功能
-- 我补充了 UI 反馈、本地保存和成就提示，让功能可被玩家感知
-- 我修复了对象池和空引用问题，体现了对运行时稳定性的关注
-- 我持续维护 `Docs/architecture.md`，说明自己能做工程记录和项目复盘
+项目基底：基于开源红跑者项目，此项目在功能迭代前已成功进行代码阅读与底层架构梳理。
+
+核心玩法升级：在原有跑跳基础上，实装了 Dash 冲刺、二段跳及跳跃容错机制，引入动态难度调节功能，提升玩家游玩流畅度。
+
+系统完善：重写并完善了 UI 反馈系统，补充了本地存档（PlayerPrefs）以及成就收集系统，完善了完整的游戏循环。
+
+底层优化与稳定性：针对项目原有的 对象池缓存机制 和潜在的空引用进行了逻辑修复，有效提升了运行时性能与稳定性。
+
+工程文档规范：持续维护 Docs/architecture.md 架构文档，确保项目具备良好的工程记录和可复盘性。
 
 ## 后续计划
 
 - [x] 增加正式截图和 GIF 演示
 - [x] 构建 Windows 可运行版本
-- [ ] 部署 WebGL 在线试玩版本（GitHub Pages）
+- [x] 部署 WebGL 在线试玩版本（GitHub Pages）
 - 增加简单的新手引导或关卡节奏说明
-- 继续整理简历项目描述和面试问答
+
 
 ## 原项目与 License
 
