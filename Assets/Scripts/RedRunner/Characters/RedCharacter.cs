@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -104,7 +104,13 @@ namespace RedRunner.Characters
 		protected int m_CurrentFootstepSoundIndex = 0;
 		protected Vector3 m_InitialScale;
 		protected Vector3 m_InitialPosition;
-		protected bool m_IsDashing = false;
+		public enum E_DashState
+		{
+			Ready,
+			Dashing,
+			Cooling
+		}
+		protected E_DashState m_DashState = E_DashState.Ready;
 		protected float m_LastDashTime = -999f;
 		protected int m_RemainingAirJumps = 0;
 		protected float m_LastGroundedTime = -999f;
@@ -207,7 +213,7 @@ namespace RedRunner.Characters
 		{
 			get
 			{
-				return !IsDead.Value && !m_IsDashing && DashCooldownRemaining <= 0f;
+				return !IsDead.Value && m_DashState == E_DashState.Ready;
 			}
 		}
 		public override Vector2 Speed
@@ -361,7 +367,7 @@ namespace RedRunner.Characters
 			m_ClosingEye = false;
 			m_Guard = false;
 			m_Block = false;
-			m_IsDashing = false;
+			m_DashState = E_DashState.Ready;
 			m_CurrentFootstepSoundIndex = 0;
 			m_BaseRunSpeed = m_RunSpeed;
 			m_BaseMaxRunSpeed = m_MaxRunSpeed;
@@ -382,6 +388,12 @@ namespace RedRunner.Characters
 			{
 				return;
 			}
+			// Dash 状态转换：冷却结束 -> 回到 Ready
+			if ( m_DashState == E_DashState.Cooling && DashCooldownRemaining <= 0f )
+			{
+				m_DashState = E_DashState.Ready;
+			}
+
 
 			RefreshAirJumpCount ();
 
@@ -501,7 +513,7 @@ namespace RedRunner.Characters
 
 		IEnumerator DashRoutine ( float direction )
 		{
-			m_IsDashing = true;
+			m_DashState = E_DashState.Dashing;
 			m_LastDashTime = Time.time;
 
 			Vector3 originalScale = transform.localScale;
@@ -520,7 +532,7 @@ namespace RedRunner.Characters
 			yield return new WaitForSeconds ( m_DashDuration );
 
 			transform.localScale = originalScale;
-			m_IsDashing = false;
+			m_DashState = E_DashState.Cooling;
 		}
 
 		void RefreshAirJumpCount ()
@@ -601,7 +613,7 @@ namespace RedRunner.Characters
 		{
 			if ( !IsDead.Value )
 			{
-				if ( m_IsDashing )
+				if ( m_DashState == E_DashState.Dashing )
 				{
 					return;
 				}
@@ -623,7 +635,7 @@ namespace RedRunner.Characters
 
 		public virtual void Dash ()
 		{
-			if ( IsDead.Value || m_IsDashing )
+			if ( IsDead.Value || m_DashState != E_DashState.Ready )
 			{
 				return;
 			}
@@ -720,7 +732,7 @@ namespace RedRunner.Characters
 			m_ClosingEye = false;
 			m_Guard = false;
 			m_Block = false;
-			m_IsDashing = false;
+			m_DashState = E_DashState.Ready;
 			m_CurrentFootstepSoundIndex = 0;
 			m_RemainingAirJumps = m_MaxAirJumps;
 			m_LastGroundedTime = Time.time;
